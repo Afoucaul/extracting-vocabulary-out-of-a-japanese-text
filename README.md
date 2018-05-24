@@ -40,6 +40,10 @@ Output:
 
 ## Extracting segmented words out of an actual text
 
+TODO: 
+- pick an actual long text
+- run mecab on it
+- ignore useless words (`''`, `'。'`, `'！'`...)
 
 ## Getting the dictionary version of extracted words
 
@@ -49,3 +53,5 @@ Dictionary version := free from context
 ## References
 
 - <a name="robfahey1"></a>[Japanese Text Analysis in Python](http://www.robfahey.co.uk/blog/japanese-text-analysis-in-python/)
+- <a name="philipperemy1"></a>[Japanese Word2Vec](https://github.com/philipperemy/japanese-words-to-vectors)
+
