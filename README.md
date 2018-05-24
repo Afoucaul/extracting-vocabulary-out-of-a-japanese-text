@@ -1,8 +1,8 @@
-# Extracting vocabulary out of a text
+# Extracting vocabulary out of a Japanese text
 
 ## Installing a lexical analyzer
 
-Following [[1](#robfahey1)], we choose MeCab.
+Following [[1]](#robfahey1), I choose MeCab.
 
 *This will clone the repo in the current directory, so take your time and be sure to put it where you want it to be*
 
