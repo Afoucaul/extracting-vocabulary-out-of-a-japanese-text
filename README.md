@@ -14,7 +14,7 @@ sudo ./bin/install-mecab-ipadic-neologd -n
 pip3 install mecab-python3
 ```
 
-Example script (from [[1]](#robfahey)):
+Example script from [[1]](#robfahey):
 
 ```python3
 import MeCab
@@ -37,6 +37,27 @@ Output:
 ['', '', '', 'いい', '天気', 'です', 'ね', '。', '遊び', 'に', '行か', 'ない', '？', '新宿', 'で', '祭り', 'が', 'ある', '！', '']
 ```
 
+The first three elements are empty strings, but these should clearly be respectively `'今'`, `'日'` and `'は'`.
+What happened?
+It turns out that MeCab is quite buggy with Python, crashing half of the time inconsistently, and skipping some words.
+
+I decide to try with Nagisa.
+
+
+### Kuromoji
+
+Nagisa is a Python module, based on neural networks.
+It's simply installed with `pip`, and can be tested easily:
+
+```python3
+In [1]: import nagisa
+[dynet] random seed: 1234
+[dynet] allocating memory: 512MB
+[dynet] memory allocation done.
+
+In [2]: nagisa.tagging("今日はいい天気ですね").words
+Out[2]: ['今日', 'は', 'いい', '天気', 'です', 'ね']
+```
 
 ## Extracting segmented words out of an actual text
 
