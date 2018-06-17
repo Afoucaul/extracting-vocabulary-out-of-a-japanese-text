@@ -292,6 +292,44 @@ I will now focus on fetching the dictionary definitions for all these words.
 
 ## Getting the dictionary version of extracted words
 
+In order to get the meaning of the extracted words, I will use Jisho website's API.
+Jisho made a wonderful work, aggregating all the knowledge of Japanese language into a single website and a well-working API.
+For each extracted word, I will send a request to this API with the module `requests`, and read the result.
+
+The response received from Jisho's API will look like this:
+
+```ipython
+In [1]: import requests
+
+In [2]: requests.get("https://jisho.org/api/v1/search/words?keyword=家").json()
+Out[2]: 
+{'data': [{'attribution': {'dbpedia': False,
+    'jmdict': True,
+    'jmnedict': False},
+   'is_common': True,
+   'japanese': [{'reading': 'いえ', 'word': '家'}],
+   'senses': [{'antonyms': [],
+     'english_definitions': ['house', 'residence', 'dwelling'],
+     'info': [],
+     'links': [],
+     'parts_of_speech': ['Noun'],
+     'restrictions': [],
+     'see_also': [],
+     'source': [],
+     'tags': []},
+    {'antonyms': [],
+     'english_definitions': ['family', 'household'],
+```
+
+First, a function that gets the response for a single word:
+
+```python3
+import requests
+
+def get_meaning(word):
+
+```
+
 Dictionary version := free from context
 
 
@@ -307,3 +345,5 @@ Dictionary version := free from context
 - <a name="philipperemy1"></a>[Japanese Word2Vec](https://github.com/philipperemy/japanese-words-to-vectors)
 - <a name="localizingjapan"></a>[Localizing Japan](http://www.localizingjapan.com/blog/2012/01/20/regular-expressions-for-japanese-text/)
 - <a name="pythonregex"></a>[PyPI page on `regex` module](https://pypi.org/project/regex/)
+- <a name="jisho"></a>[Jisho](https://jisho.org/)
+
