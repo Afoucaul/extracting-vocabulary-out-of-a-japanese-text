@@ -319,19 +319,98 @@ Out[2]:
      'tags': []},
     {'antonyms': [],
      'english_definitions': ['family', 'household'],
+...
 ```
 
-First, a function that gets the response for a single word:
+Let's write now a function that gets the response for a single word.
 
 ```python3
 import requests
 
 def get_meaning(word):
+    data = requests.get(API_URL.format(word)).json()['data'][0]
 
+    reading = data['japanese'][0]['reading']
+    meanings = [x['english_definitions'][0] for x in data['senses']]
+
+    return reading, meanings
 ```
 
-Dictionary version := free from context
+Since all the requests to the API are unrelated, I can write them as `asyncio` coroutines, and start them all in the main section.
+I decide that each coroutine will fill a field in a global dictionary.
 
+```python3
+async def get_meaning(dictionary, word):
+    data = requests.get(API_URL.format(word)).json()['data'][0]
+
+    reading = data['japanese'][0]['reading']
+    meanings = [x['english_definitions'][0] for x in data['senses']]
+
+    dictionary[word] = {'reading': reading, 'meanings': meanings}
+```
+
+And the main section is now a `main` function, marked `async` as well:
+
+```python3
+async def main(meanings):
+    words = set()
+
+    with open(sys.argv[1], 'r') as file:
+        content = file.read()
+        for word in filter(
+                validate_word,
+                nagisa.tagging(content).words):
+            words.add(word)
+
+    print("Extracted {} words".format(len(words)))
+
+    coroutines = [get_meaning(meanings, word) for word in words]
+    await aio.wait(coroutines)
+```
+
+Finally, I setup the event loop and call the `main` function:
+
+```python3
+if __name__ == '__main__':
+    event_loop = aio.get_event_loop()
+    try:
+        meanings = {}
+        event_loop.run_until_complete(main(meanings))
+        print(meanings)
+    finally:
+        event_loop.close()
+```
+
+Let's try it on a short file first.
+The `short.txt` file only contains the short sentence `今日はいい天気ですね。`
+
+```shell
+$ python3 nagisa_segmentize.py short.txt
+[dynet] random seed: 1234
+[dynet] allocating memory: 512MB
+[dynet] memory allocation done.
+Extracted 6 words
+Received meaning for word いい
+Received meaning for word ね
+Received meaning for word 今日
+Received meaning for word 天気
+Received meaning for word は
+Received meaning for word です
+{'ね': {'reading': 'ね', 'meanings': ['root (of a plant)', 'root (of a tooth, hair, etc.)', 'root (of all evil, etc.)', "one's true nature", '(fishing) reef', 'Ne', 'Root']}, 'は': {'reading': 'は', 'meanings': ['topic marker particle', 'indicates contrast with another option (stated or unstated)', 'adds emphasis', 'Ha (kana)']}, '今日': {'reading': 'きょう', 'meanings': ['today', 'these days']}, 'です': {'reading': 'です', 'meanings': ['be']}, '天気': {'reading': 'てんき', 'meanings': ['weather', 'fair weather']}, 'いい': {'reading': 'よい', 'meanings': ['good', 'sufficient (can be used to turn down an offer)', 'profitable (e.g. deal, business offer, etc.)', 'OK']}}
+```
+
+The output is the following dictionary:
+
+```python3
+{
+    です: {'reading': 'です', 'meanings': ['be']}
+    いい: {'reading': 'よい', 'meanings': ['good', 'sufficient (can be used to turn down an offer)', 'profitable (e.g. deal, business offer, etc.)', 'OK']}
+    天気: {'reading': 'てんき', 'meanings': ['weather', 'fair weather']}
+    は: {'reading': 'は', 'meanings': ['topic marker particle', 'indicates contrast with another option (stated or unstated)', 'adds emphasis', 'Ha (kana)']}
+    今日: {'reading': 'きょう', 'meanings': ['today', 'these days']}
+    ね: {'reading': 'ね', 'meanings': ['root (of a plant)', 'root (of a tooth, hair, etc.)', 'root (of all evil, etc.)', "one's true nature", '(fishing) reef', 'Ne', 'Root']}
+}
+```
 
 ## Performance issues
 
