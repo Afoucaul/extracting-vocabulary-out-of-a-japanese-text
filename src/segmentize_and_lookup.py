@@ -2,7 +2,7 @@
 
 import sys
 import regex as re
-import nagisa
+import MeCab
 import requests
 import asyncio as aio
 
@@ -50,18 +50,17 @@ async def get_meaning(dictionary, word, progress_bar):
 
 async def main(meanings):
     words = set()
-
+    wakati = MeCab.Tagger('-Owakati')
     with open(sys.argv[1], 'r') as file:
         content = file.read()
-        for word in filter(
+        words = {word for word in filter(
                 validate_word,
-                nagisa.wakati(content)):
-            words.add(word)
+                wakati.parse(content).split())}
 
     print("Extracted {} words".format(len(words)))
 
     progress_bar = ProgressBar(len(words))
-    coroutines = [get_meaning(meanings, word, progress_bar) for word in words]
+    coroutines = [aio.create_task(get_meaning(meanings, word, progress_bar)) for word in words]
     await aio.wait(coroutines)
     print("\nDone.")
 
